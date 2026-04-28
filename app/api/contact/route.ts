@@ -14,34 +14,29 @@ function isValidEmail(v: string): boolean {
 export async function POST(request: Request) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
-    return NextResponse.json(
-      { error: "Server is missing RESEND_API_KEY." },
-      { status: 500 },
-    );
+    console.error("[contact] RESEND_API_KEY is not set.");
+    return NextResponse.json({ ok: false }, { status: 500 });
   }
 
   let body: unknown;
   try {
     body = await request.json();
   } catch {
-    return NextResponse.json({ error: "Invalid JSON body." }, { status: 400 });
+    return NextResponse.json({ ok: false }, { status: 400 });
   }
 
   if (!body || typeof body !== "object") {
-    return NextResponse.json({ error: "Expected a JSON object." }, { status: 400 });
+    return NextResponse.json({ ok: false }, { status: 400 });
   }
 
   const { name, email, subject, message } = body as Record<string, unknown>;
 
   if (!isNonEmptyString(name) || !isNonEmptyString(email) || !isNonEmptyString(subject) || !isNonEmptyString(message)) {
-    return NextResponse.json(
-      { error: "name, email, subject, and message are required." },
-      { status: 400 },
-    );
+    return NextResponse.json({ ok: false }, { status: 400 });
   }
 
   if (!isValidEmail(email)) {
-    return NextResponse.json({ error: "Invalid email address." }, { status: 400 });
+    return NextResponse.json({ ok: false }, { status: 400 });
   }
 
   const nameTrim = name.trim().slice(0, 200);
@@ -71,10 +66,8 @@ export async function POST(request: Request) {
   });
 
   if (error) {
-    return NextResponse.json(
-      { error: error.message ?? "Failed to send email." },
-      { status: 502 },
-    );
+    console.error("[contact] Resend error:", error);
+    return NextResponse.json({ ok: false }, { status: 502 });
   }
 
   return NextResponse.json({ ok: true, id: data?.id ?? null });

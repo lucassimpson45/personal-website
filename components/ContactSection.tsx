@@ -15,7 +15,6 @@ export function ContactSection() {
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">(
     "idle",
   );
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const {
     register,
     handleSubmit,
@@ -25,7 +24,6 @@ export function ContactSection() {
 
   const onSubmit = async (data: FormValues) => {
     setStatus("sending");
-    setErrorMessage(null);
     try {
       const res = await fetch("/api/contact", {
         method: "POST",
@@ -37,22 +35,19 @@ export function ContactSection() {
           message: data.message,
         }),
       });
-      const payload = (await res.json().catch(() => ({}))) as {
-        error?: string;
-      };
       if (!res.ok) {
-        throw new Error(payload.error || `Request failed (${res.status})`);
+        // Never show API / Resend error bodies to the visitor; details stay server-side only.
+        throw new Error("send_failed");
       }
       setStatus("success");
       reset();
-    } catch (e) {
+    } catch {
       setStatus("error");
-      setErrorMessage(e instanceof Error ? e.message : "Something went wrong.");
     }
   };
 
   const inputClass =
-    "w-full rounded border border-border bg-surface/80 px-4 py-3 font-mono text-xs text-text-primary outline-none transition-colors placeholder:text-text-secondary/60 focus:border-accent/60 focus:shadow-glow-sm";
+    "w-full rounded border border-white/18 bg-[#0a0a0a]/75 px-4 py-3 font-mono text-xs text-white/95 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] outline-none transition-colors placeholder:text-zinc-500 focus:border-white/32 focus:bg-[#0a0a0a]/90";
 
   return (
     <section
@@ -68,16 +63,6 @@ export function ContactSection() {
         >
           GET IN TOUCH
         </motion.h2>
-        <p className="mt-4 text-center font-mono text-[10px] uppercase tracking-[0.3em] text-text-secondary">
-          Messages are sent to{" "}
-          <a
-            href="mailto:lucas@goluda.ai"
-            className="text-accent/90 underline-offset-4 hover:underline"
-          >
-            lucas@goluda.ai
-          </a>{" "}
-          via Resend.
-        </p>
 
         <form
           onSubmit={handleSubmit(onSubmit)}
@@ -93,6 +78,7 @@ export function ContactSection() {
               className={inputClass}
               placeholder="Name"
               data-cursor-hover
+              autoComplete="name"
               {...register("name", { required: "Name is required" })}
             />
             {errors.name && (
@@ -111,6 +97,7 @@ export function ContactSection() {
               className={inputClass}
               placeholder="Email"
               data-cursor-hover
+              autoComplete="email"
               {...register("email", {
                 required: "Email is required",
                 pattern: {
@@ -182,9 +169,9 @@ export function ContactSection() {
             Message sent. I&apos;ll be in touch.
           </p>
         )}
-        {status === "error" && errorMessage && (
-          <p className="mt-8 text-center font-mono text-xs text-red-300/90" role="alert">
-            {errorMessage}
+        {status === "error" && (
+          <p className="mt-8 text-center font-mono text-xs text-text-secondary" role="alert">
+            We couldn&apos;t send that just now. Please try again in a moment.
           </p>
         )}
       </div>
