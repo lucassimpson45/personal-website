@@ -29,6 +29,7 @@ const config: Config = {
       },
       animation: {
         marquee: "marquee 55s linear infinite",
+        "marquee-sm": "marquee 42s linear infinite",
       },
       boxShadow: {
         glow: "0 0 40px var(--accent-glow), 0 0 80px rgba(180, 210, 255, 0.08)",

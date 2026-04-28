@@ -46,7 +46,7 @@ export function PortfolioSection({ latestYoutube, hasYoutubeConfig }: PortfolioS
       id="portfolio"
       className="relative z-20 border-t border-border bg-surface py-28 md:py-36"
     >
-      <div className="relative mx-auto max-w-6xl px-6 md:px-12">
+      <div className="relative mx-auto max-w-6xl min-w-0 px-6 md:px-12">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -69,7 +69,7 @@ export function PortfolioSection({ latestYoutube, hasYoutubeConfig }: PortfolioS
         <TechMarquee />
       </div>
 
-      <div className="relative mx-auto mt-24 max-w-6xl px-6 md:px-12">
+      <div className="relative mx-auto mt-24 min-w-0 max-w-6xl px-6 md:px-12">
         <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-text-secondary">
           What I&apos;ve built
         </p>
@@ -91,7 +91,7 @@ export function PortfolioSection({ latestYoutube, hasYoutubeConfig }: PortfolioS
                 aria-controls={`panel-${id}`}
                 onClick={() => setTab(id)}
                 data-cursor-hover
-                className={`relative -mb-px px-4 py-3 font-mono text-[10px] uppercase tracking-[0.28em] transition-colors md:px-5 ${
+                className={`relative -mb-px touch-manipulation px-4 py-3 font-mono text-[10px] uppercase tracking-[0.28em] transition-colors md:px-5 ${
                   active
                     ? "text-text-primary"
                     : "text-text-secondary hover:text-text-primary/80"

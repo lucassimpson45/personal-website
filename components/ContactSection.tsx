@@ -11,6 +11,9 @@ type FormValues = {
   message: string;
 };
 
+const WEB3FORMS_ENDPOINT = "https://api.web3forms.com/submit";
+const WEB3FORMS_ACCESS_KEY = "a7901fb1-04be-486a-ba13-f9ef92a07dec";
+
 export function ContactSection() {
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">(
     "idle",
@@ -25,19 +28,21 @@ export function ContactSection() {
   const onSubmit = async (data: FormValues) => {
     setStatus("sending");
     try {
-      const res = await fetch("/api/contact", {
+      const res = await fetch(WEB3FORMS_ENDPOINT, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({
+          access_key: WEB3FORMS_ACCESS_KEY,
           name: data.name,
           email: data.email,
           subject: data.subject,
           message: data.message,
         }),
       });
-      if (!res.ok) {
-        // Never show API / Resend error bodies to the visitor; details stay server-side only.
-        throw new Error("send_failed");
+      const payload = (await res.json().catch(() => null)) as { success?: boolean } | null;
+      if (!res.ok || !payload?.success) {
+        setStatus("error");
+        return;
       }
       setStatus("success");
       reset();
@@ -52,9 +57,9 @@ export function ContactSection() {
   return (
     <section
       id="contact"
-      className="relative z-20 border-t border-border bg-surface px-6 py-28 md:px-12 md:py-36"
+      className="relative z-20 w-full min-w-0 border-t border-border bg-surface px-6 py-28 md:px-12 md:py-36"
     >
-      <div className="relative mx-auto max-w-xl">
+      <div className="relative mx-auto w-full min-w-0 max-w-2xl">
         <motion.h2
           initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}

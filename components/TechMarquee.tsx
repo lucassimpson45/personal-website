@@ -181,7 +181,7 @@ function Cell({ entry }: { entry: TechEntry }) {
 
 function Row({ items, suffix }: { items: TechEntry[]; suffix: string }) {
   return (
-    <div className="flex shrink-0 items-center gap-14 pr-14 md:gap-16 md:pr-16">
+    <div className="flex shrink-0 items-center gap-10 pr-10 sm:gap-12 sm:pr-12 md:gap-16 md:pr-16">
       {items.map((entry, i) => (
         <div key={`${suffix}-${entry.label}-${i}`}>
           <Cell entry={entry} />
@@ -193,10 +193,10 @@ function Row({ items, suffix }: { items: TechEntry[]; suffix: string }) {
 
 export function TechMarquee() {
   return (
-    <div className="relative left-1/2 right-1/2 -mx-[50vw] w-screen overflow-hidden border-y border-border/60 bg-bg/40 py-12 backdrop-blur-[2px]">
-      <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 bg-gradient-to-r from-surface to-transparent" />
-      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 bg-gradient-to-l from-surface to-transparent" />
-      <div className="flex w-max animate-marquee">
+    <div className="relative left-1/2 right-1/2 -mx-[50vw] w-screen max-w-[100vw] overflow-hidden border-y border-border/60 bg-bg/40 py-8 backdrop-blur-[2px] sm:py-12">
+      <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-16 bg-gradient-to-r from-surface to-transparent sm:w-24" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-16 bg-gradient-to-l from-surface to-transparent sm:w-24" />
+      <div className="flex w-max will-change-transform motion-reduce:animate-none max-md:animate-marquee-sm md:animate-marquee">
         <Row items={TECH} suffix="a" />
         <Row items={TECH} suffix="b" />
       </div>

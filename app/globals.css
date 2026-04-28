@@ -16,13 +16,15 @@
 
 html {
   scroll-behavior: smooth;
+  /* Avoid `overflow-x: hidden` on body: it can break vertical scrolling on iOS. */
+  overflow-x: clip;
 }
 
 body {
   color: var(--text-primary);
   background: var(--bg);
   font-family: var(--font-dm-mono), ui-monospace, monospace;
-  overflow-x: hidden;
+  min-height: 100%;
 }
 
 @media (min-width: 769px) {

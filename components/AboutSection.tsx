@@ -86,7 +86,7 @@ export function AboutSection() {
       id="about"
       className="relative z-20 border-t border-border bg-bg py-28 md:py-36"
     >
-      <div className="relative mx-auto max-w-5xl px-6 md:px-12">
+      <div className="relative mx-auto max-w-5xl min-w-0 px-6 md:px-12">
         <div className="flex flex-col gap-12 md:flex-row md:items-start md:gap-16">
           <motion.p
             custom={0}
@@ -108,7 +108,7 @@ export function AboutSection() {
                 initial="hidden"
                 whileInView="show"
                 viewport={{ once: true, margin: "-60px" }}
-                className="text-sm leading-relaxed text-text-secondary md:text-base"
+                className="text-base leading-relaxed text-text-secondary"
               >
                 {content}
               </motion.p>

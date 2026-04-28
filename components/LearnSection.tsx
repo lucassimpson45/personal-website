@@ -13,7 +13,7 @@ export function LearnSection() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] as const }}
-        className="relative mx-auto flex max-w-3xl flex-col items-center text-center"
+        className="relative mx-auto flex min-w-0 max-w-3xl flex-col items-center text-center"
       >
         <h2 className="font-display text-5xl tracking-[0.35em] text-text-primary md:text-7xl md:tracking-[0.45em]">
           COMING SOON

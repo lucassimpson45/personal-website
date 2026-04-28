@@ -19,7 +19,7 @@ export default async function Home() {
   const latestYoutube = await fetchLatestChannelVideos(channelId, YOUTUBE_CARD_COUNT);
 
   return (
-    <main className="relative z-10 min-h-screen bg-bg">
+    <main className="relative z-10 min-h-screen min-w-0 bg-bg">
       <Suspense fallback={<HeroLoadingFallback />}>
         <HeroColosseum />
       </Suspense>

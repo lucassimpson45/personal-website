@@ -3,8 +3,7 @@
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import type { Ref } from "react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import * as THREE from "three";
 import { HeroSunBloom } from "./HeroSunBloom";
 
@@ -14,6 +13,16 @@ const HERO_VH = 480;
 
 /** Base opacity for the sun layer (0–0.4); scroll fade multiplies on top. */
 const HERO_SUN_MAX_OPACITY = 0.4;
+
+/** Title + rule fade out over this fraction of the hero scroll (0–1). */
+const HERO_TITLE_FADE_END = 0.42;
+
+function titleOpacityFromHeroProgress(p: number) {
+  return Math.max(0, 1 - Math.min(1, p) / HERO_TITLE_FADE_END);
+}
+
+/** 3D stack lags slightly for a parallax read (percent of hero progress). */
+const HERO_PARALLAX_SHIFT_PCT = 18;
 
 /** Sun is fully visible at hero progress 0 and gone by this progress (40% of hero scroll). */
 const HERO_SUN_FADE_END = 0.4;
@@ -136,65 +145,35 @@ function createArena(wireMaterials: THREE.MeshBasicMaterial[]): THREE.Group {
   return group;
 }
 
-function MobileHeroFallback({ sunWrapRef }: { sunWrapRef: Ref<HTMLDivElement> }) {
-  return (
-    <div className="relative sticky top-0 flex h-screen w-full flex-col items-center overflow-hidden bg-bg pb-16 pt-28">
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{
-          backgroundImage:
-            "linear-gradient(to top, rgba(8,8,8,0.95) 0%, rgba(8,8,8,0.55) 45%, rgba(8,8,8,0.2) 100%), url(https://images.unsplash.com/photo-1552832230-c0197dd311b5?q=80&w=2000&auto=format&fit=crop)",
-        }}
-      />
-      <div
-        ref={sunWrapRef}
-        className="pointer-events-none absolute inset-0 z-0"
-        style={{ opacity: HERO_SUN_MAX_OPACITY, willChange: "opacity" }}
-      >
-        <HeroSunBloom />
-      </div>
-      <div
-        className="pointer-events-none absolute inset-0 z-[5] opacity-70"
-        style={{
-          background:
-            "radial-gradient(ellipse 80% 50% at 50% 60%, rgba(200, 216, 255, 0.12), transparent 55%)",
-        }}
-      />
-      <div className="relative z-20 flex w-full flex-col items-center px-6 text-center md:px-10">
-        <h1
-          data-cursor-glow="title"
-          className="font-display text-4xl tracking-[0.28em] text-text-primary md:text-6xl md:tracking-[0.32em]"
-        >
-          LUCAS SIMPSON
-        </h1>
-        <div className="mt-6 h-px w-full max-w-md bg-gradient-to-r from-transparent via-accent/80 to-transparent" />
-      </div>
-    </div>
-  );
-}
-
-function readMobileMq() {
-  if (typeof window === "undefined") return true;
-  return window.matchMedia("(max-width: 768px), (pointer: coarse)").matches;
-}
-
 export default function HeroColosseum() {
-  /** Mobile-first when unknown — avoids mounting WebGL on phones before matchMedia runs. */
-  const [mobile, setMobile] = useState(() => readMobileMq());
   const mountRef = useRef<HTMLDivElement>(null);
   const sectionRef = useRef<HTMLElement>(null);
   const sunWrapRef = useRef<HTMLDivElement>(null);
   const mouse = useRef({ x: 0, y: 0 });
   const progressRef = useRef(0);
 
+  const parallaxRef = useRef<HTMLDivElement>(null);
+  const titleGroupRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     const section = sectionRef.current;
     if (!section) return;
 
-    const applySunOpacity = (progress: number) => {
-      const el = sunWrapRef.current;
-      if (!el) return;
-      el.style.opacity = String(HERO_SUN_MAX_OPACITY * sunOpacityFromHeroProgress(progress));
+    const apply = (progress: number) => {
+      const p = progress;
+
+      const sunEl = sunWrapRef.current;
+      if (sunEl) {
+        sunEl.style.opacity = String(HERO_SUN_MAX_OPACITY * sunOpacityFromHeroProgress(p));
+      }
+
+      if (parallaxRef.current) {
+        parallaxRef.current.style.transform = `translate3d(0, ${(p * HERO_PARALLAX_SHIFT_PCT).toFixed(3)}%, 0)`;
+      }
+
+      if (titleGroupRef.current) {
+        titleGroupRef.current.style.opacity = String(titleOpacityFromHeroProgress(p));
+      }
     };
 
     const st = ScrollTrigger.create({
@@ -202,43 +181,55 @@ export default function HeroColosseum() {
       start: "top top",
       end: "bottom bottom",
       scrub: true,
-      onUpdate: (self) => applySunOpacity(self.progress),
+      onUpdate: (self) => apply(self.progress),
     });
 
-    applySunOpacity(st.progress);
-    requestAnimationFrame(() => applySunOpacity(st.progress));
+    apply(st.progress);
+    const raf = requestAnimationFrame(() => {
+      apply(st.progress);
+      ScrollTrigger.refresh();
+    });
 
     return () => {
+      cancelAnimationFrame(raf);
       st.kill();
     };
-  }, [mobile]);
-
-  useEffect(() => {
-    const mq = window.matchMedia("(max-width: 768px), (pointer: coarse)");
-    const update = () => setMobile(mq.matches);
-    update();
-    mq.addEventListener("change", update);
-    return () => mq.removeEventListener("change", update);
   }, []);
 
   const onMouseMove = useCallback((e: MouseEvent) => {
-    mouse.current.x = (e.clientX / window.innerWidth) * 2 - 1;
-    mouse.current.y = -(e.clientY / window.innerHeight) * 2 + 1;
+    const el = mountRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    if (r.width < 1 || r.height < 1) return;
+    mouse.current.x = ((e.clientX - r.left) / r.width) * 2 - 1;
+    mouse.current.y = -((e.clientY - r.top) / r.height) * 2 + 1;
+  }, []);
+
+  const onTouch = useCallback((e: TouchEvent) => {
+    const t = e.touches[0];
+    if (!t) return;
+    const el = mountRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    if (r.width < 1 || r.height < 1) return;
+    mouse.current.x = ((t.clientX - r.left) / r.width) * 2 - 1;
+    mouse.current.y = -((t.clientY - r.top) / r.height) * 2 + 1;
   }, []);
 
   useGSAP(
     () => {
-      if (mobile || !mountRef.current || !sectionRef.current) return;
+      if (!mountRef.current || !sectionRef.current) return;
 
       const scene = new THREE.Scene();
       scene.fog = new THREE.FogExp2(0x080808, 0.012);
 
-      const camera = new THREE.PerspectiveCamera(
-        48,
-        window.innerWidth / window.innerHeight,
-        0.1,
-        220,
-      );
+      const mount = mountRef.current;
+      const camAspect =
+        mount.clientWidth > 0 && mount.clientHeight > 0
+          ? mount.clientWidth / mount.clientHeight
+          : window.innerWidth / window.innerHeight;
+
+      const camera = new THREE.PerspectiveCamera(48, camAspect, 0.1, 220);
       camera.position.set(0, 11, 40);
 
       const renderer = new THREE.WebGLRenderer({
@@ -247,12 +238,23 @@ export default function HeroColosseum() {
         powerPreference: "high-performance",
       });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-      renderer.setSize(window.innerWidth, window.innerHeight);
       /** Transparent clear so the HeroSunBloom layer (below the canvas) reads as a backlit sky. */
       renderer.setClearColor(0x000000, 0);
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
       renderer.toneMappingExposure = 1.05;
-      mountRef.current.appendChild(renderer.domElement);
+      mount.appendChild(renderer.domElement);
+
+      const applyCanvasSize = () => {
+        const w = mount.clientWidth;
+        const h = mount.clientHeight;
+        if (w < 1 || h < 1) return;
+        camera.aspect = w / h;
+        camera.updateProjectionMatrix();
+        renderer.setSize(w, h, false);
+      };
+      applyCanvasSize();
+      const ro = new ResizeObserver(() => applyCanvasSize());
+      ro.observe(mount);
 
       const wireMaterials: THREE.MeshBasicMaterial[] = [];
       const arena = createArena(wireMaterials);
@@ -275,7 +277,8 @@ export default function HeroColosseum() {
       fill.position.set(0, 8, 20);
       scene.add(fill);
 
-      const particleCount = 1400;
+      const narrow = (mount.clientWidth > 0 ? mount.clientWidth : window.innerWidth) < 768;
+      const particleCount = narrow ? 550 : 1400;
       const positions = new Float32Array(particleCount * 3);
       const velocities = new Float32Array(particleCount * 3);
       for (let i = 0; i < particleCount; i++) {
@@ -293,7 +296,7 @@ export default function HeroColosseum() {
       pGeo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
       const pMat = new THREE.PointsMaterial({
         color: 0xc8d8ff,
-        size: 0.045,
+        size: narrow ? 0.055 : 0.045,
         transparent: true,
         opacity: 0.55,
         depthWrite: false,
@@ -345,13 +348,14 @@ export default function HeroColosseum() {
       });
 
       window.addEventListener("mousemove", onMouseMove);
+      window.addEventListener("touchstart", onTouch, { passive: true });
+      window.addEventListener("touchmove", onTouch, { passive: true });
 
-      const onResize = () => {
-        camera.aspect = window.innerWidth / window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
+      const onWindowResize = () => {
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+        applyCanvasSize();
       };
-      window.addEventListener("resize", onResize);
+      window.addEventListener("resize", onWindowResize);
 
       let raf = 0;
       const animate = () => {
@@ -379,9 +383,12 @@ export default function HeroColosseum() {
       animate();
 
       return () => {
+        ro.disconnect();
         cancelAnimationFrame(raf);
-        window.removeEventListener("resize", onResize);
+        window.removeEventListener("resize", onWindowResize);
         window.removeEventListener("mousemove", onMouseMove);
+        window.removeEventListener("touchstart", onTouch);
+        window.removeEventListener("touchmove", onTouch);
         st.kill();
         const canvas = renderer.domElement;
         if (canvas.parentNode) {
@@ -403,21 +410,8 @@ export default function HeroColosseum() {
         });
       };
     },
-    { dependencies: [mobile, onMouseMove], revertOnUpdate: true },
+    { dependencies: [onMouseMove, onTouch], revertOnUpdate: true },
   );
-
-  if (mobile) {
-    return (
-      <section
-        id="home"
-        ref={sectionRef}
-        className="relative z-0"
-        style={{ height: `${HERO_VH}vh` }}
-      >
-        <MobileHeroFallback sunWrapRef={sunWrapRef} />
-      </section>
-    );
-  }
 
   return (
     <section
@@ -426,27 +420,35 @@ export default function HeroColosseum() {
       className="relative z-0"
       style={{ height: `${HERO_VH}vh` }}
     >
-      <div className="relative sticky top-0 h-screen w-full overflow-hidden">
+      <div className="relative sticky top-0 h-screen min-h-[100dvh] w-full min-w-0 overflow-hidden">
         <div
-          ref={sunWrapRef}
-          className="pointer-events-none absolute inset-0 z-0"
-          style={{ opacity: HERO_SUN_MAX_OPACITY, willChange: "opacity" }}
+          ref={parallaxRef}
+          className="pointer-events-none absolute inset-0 z-0 will-change-transform"
         >
-          <HeroSunBloom />
+          <div
+            ref={sunWrapRef}
+            className="pointer-events-none absolute inset-0 z-0"
+            style={{ opacity: HERO_SUN_MAX_OPACITY, willChange: "opacity" }}
+          >
+            <HeroSunBloom />
+          </div>
+          <div
+            ref={mountRef}
+            className="pointer-events-none absolute inset-0 z-10 h-full w-full min-h-0 min-w-0 [&_canvas]:pointer-events-none [&_canvas]:block [&_canvas]:h-full [&_canvas]:w-full [&_canvas]:min-h-0"
+          />
+          <div className="pointer-events-none absolute inset-0 z-[15] bg-gradient-to-b from-bg/20 via-transparent to-bg/90" />
         </div>
         <div
-          ref={mountRef}
-          className="absolute inset-0 z-10 [&_canvas]:block [&_canvas]:h-full [&_canvas]:w-full"
-        />
-        <div className="pointer-events-none absolute inset-0 z-[15] bg-gradient-to-b from-bg/20 via-transparent to-bg/90" />
-        <div className="pointer-events-none absolute inset-0 z-20 flex flex-col items-center px-6 pb-16 pt-28 text-center md:px-10 md:pt-32">
+          ref={titleGroupRef}
+          className="pointer-events-none absolute inset-0 z-20 flex max-w-full flex-col items-center px-4 pb-12 pt-24 text-center will-change-[opacity] sm:px-6 sm:pb-16 sm:pt-28 md:px-10 md:pt-32"
+        >
           <h1
             data-cursor-glow="title"
-            className="font-display text-5xl tracking-[0.28em] text-text-primary drop-shadow-[0_0_40px_rgba(0,0,0,0.85)] md:text-7xl md:tracking-[0.34em]"
+            className="max-w-[min(100%,22rem)] font-display text-[clamp(1.1rem,4.8vw,1.75rem)] leading-tight tracking-[0.18em] text-text-primary drop-shadow-[0_0_40px_rgba(0,0,0,0.85)] sm:text-4xl sm:tracking-[0.24em] md:text-6xl md:tracking-[0.3em] lg:text-7xl lg:tracking-[0.34em]"
           >
             LUCAS SIMPSON
           </h1>
-          <div className="mt-8 h-px w-full max-w-2xl bg-gradient-to-r from-transparent via-accent/85 to-transparent" />
+          <div className="mt-6 h-px w-full max-w-2xl bg-gradient-to-r from-transparent via-accent/85 to-transparent sm:mt-8" />
         </div>
       </div>
     </section>

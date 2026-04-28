@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 
 const links = [
+  { href: "#home", label: "Home" },
   { href: "#about", label: "About" },
   { href: "#portfolio", label: "Portfolio" },
   { href: "#learn", label: "Learn" },
@@ -46,7 +47,7 @@ export function Nav() {
     "font-mono text-[10px] uppercase tracking-[0.28em] text-text-primary/90 transition-colors hover:text-accent data-cursor-hover";
 
   return (
-    <header className="fixed inset-x-0 top-0 z-[10000] px-5 py-4 md:px-8">
+    <header className="fixed inset-x-0 top-0 z-[10000]">
       <div
         className={`pointer-events-none absolute inset-0 transition-opacity duration-500 ${
           scrolled ? "opacity-100" : "opacity-0"
@@ -57,11 +58,15 @@ export function Nav() {
           WebkitBackdropFilter: "blur(14px)",
         }}
       />
-      <nav className="relative z-10 flex items-center justify-between">
+      {/* Top bar stays above the full-screen menu so the hamburger stays tappable */}
+      <div className="relative z-[60] flex items-center justify-between px-4 py-3 md:px-8 md:py-4">
         <button
           type="button"
-          onClick={() => scrollToId("#home")}
-          className="font-display text-lg tracking-[0.12em] text-text-primary transition-colors hover:text-accent md:text-xl"
+          onClick={() => {
+            scrollToId("#home");
+            setMobileOpen(false);
+          }}
+          className="min-h-[44px] min-w-[44px] -translate-x-2 px-2 text-left font-display text-base tracking-[0.12em] text-text-primary transition-colors hover:text-accent sm:text-lg md:translate-x-0 md:text-xl"
           data-cursor-hover
           data-cursor-glow
         >
@@ -69,7 +74,7 @@ export function Nav() {
         </button>
 
         {!isMobile && (
-          <ul className="flex items-center gap-10">
+          <ul className="flex items-center gap-8 md:gap-10">
             {links.map(({ href, label }) => (
               <li key={href}>
                 <a
@@ -92,8 +97,8 @@ export function Nav() {
           <button
             type="button"
             aria-expanded={mobileOpen}
-            aria-label="Menu"
-            className="relative z-20 flex h-10 w-10 flex-col items-center justify-center gap-1.5 rounded border border-border bg-surface/80"
+            aria-label={mobileOpen ? "Close menu" : "Open menu"}
+            className="flex min-h-11 min-w-11 touch-manipulation flex-col items-center justify-center gap-1.5 rounded border border-border bg-surface/80"
             onClick={() => setMobileOpen((o) => !o)}
             data-cursor-hover
             data-cursor-glow
@@ -115,42 +120,48 @@ export function Nav() {
             />
           </button>
         )}
-      </nav>
+      </div>
 
       <AnimatePresence>
         {isMobile && mobileOpen && (
           <motion.div
+            key="mobile-nav"
+            className="fixed inset-0 z-50 flex items-center justify-center"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-10 flex flex-col items-center justify-center gap-8 bg-bg/98 pt-20"
+            transition={{ duration: 0.2 }}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Site navigation"
           >
             <button
               type="button"
-              className="font-display text-2xl tracking-[0.15em]"
-              data-cursor-glow
-              onClick={() => {
-                scrollToId("#home");
-                setMobileOpen(false);
-              }}
+              aria-label="Close menu"
+              className="absolute inset-0 touch-manipulation bg-bg/98 backdrop-blur-md"
+              onClick={() => setMobileOpen(false)}
+            />
+            <nav
+              className="relative z-10 mx-auto flex w-full max-w-md flex-col items-stretch justify-center gap-0 px-6 py-6 pointer-events-none pt-[max(5.5rem,env(safe-area-inset-top,0px)+2.5rem)]"
+              aria-label="Primary"
             >
-              Home
-            </button>
-            {links.map(({ href, label }) => (
-              <a
-                key={href}
-                href={href}
-                className="font-mono text-xs uppercase tracking-[0.35em] text-text-primary"
-                data-cursor-glow
-                onClick={(e) => {
-                  e.preventDefault();
-                  scrollToId(href);
-                  setMobileOpen(false);
-                }}
-              >
-                {label}
-              </a>
-            ))}
+              {links.map(({ href, label }) => (
+                <a
+                  key={href}
+                  href={href}
+                  className="pointer-events-auto w-full border-b border-border/40 py-4 text-center font-mono text-xs uppercase tracking-[0.32em] text-text-primary active:bg-surface-2/50"
+                  data-cursor-glow
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    scrollToId(href);
+                    setMobileOpen(false);
+                  }}
+                >
+                  {label}
+                </a>
+              ))}
+            </nav>
           </motion.div>
         )}
       </AnimatePresence>
