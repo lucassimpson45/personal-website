@@ -7,6 +7,7 @@ import { useState } from "react";
 import { TechMarquee } from "@/components/TechMarquee";
 import { BUSINESSES_BY_SLUG, BUSINESS_SLUGS, type BusinessSlug } from "@/lib/business-pages";
 import { showcaseProjects } from "@/lib/portfolio-showcase";
+import { PHOTOGRAPHY_ITEMS } from "@/lib/photography";
 import type { YoutubeFeedVideo } from "@/lib/youtube-public";
 import { youtubeThumbnailUrl, youtubeWatchUrl } from "@/lib/youtube-public";
 
@@ -14,7 +15,8 @@ const tabs = [
   { id: "businesses" as const, label: "Businesses" },
   { id: "projects" as const, label: "Projects" },
   { id: "content" as const, label: "Content" },
-];
+  { id: "cool-stuff" as const, label: "Cool Stuff" },
+] as const;
 
 type TabId = (typeof tabs)[number]["id"];
 
@@ -303,6 +305,56 @@ export function PortfolioSection({ latestYoutube, hasYoutubeConfig }: PortfolioS
                     </p>
                   </motion.div>
                 )}
+              </motion.div>
+            ) : null}
+
+            {tab === "cool-stuff" ? (
+              <motion.div
+                key="cool-stuff"
+                role="tabpanel"
+                id="panel-cool-stuff"
+                aria-labelledby="tab-cool-stuff"
+                variants={panelMotion}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                className="min-w-0"
+              >
+                <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-text-secondary">
+                  Photography
+                </p>
+                <ul className="mt-6 grid list-none grid-cols-1 gap-4 md:grid-cols-2 md:gap-5">
+                  {PHOTOGRAPHY_ITEMS.map((item, i) => (
+                    <motion.li
+                      key={item.src}
+                      custom={i}
+                      variants={cardReveal}
+                      initial="hidden"
+                      animate="show"
+                      className="min-w-0"
+                    >
+                      <figure className="group/photo m-0 min-w-0">
+                        <div className="relative aspect-video w-full min-w-0 overflow-hidden bg-bg">
+                          <Image
+                            src={item.src}
+                            alt={item.label}
+                            fill
+                            className="object-cover transition duration-500 ease-out group-hover/photo:scale-[1.02]"
+                            sizes="(max-width: 768px) 100vw, 50vw"
+                          />
+                          <div
+                            className="pointer-events-none absolute inset-0 bg-bg/0 transition-colors duration-300 group-hover/photo:bg-bg/70"
+                            aria-hidden
+                          />
+                          <p className="pointer-events-none absolute inset-0 flex items-center justify-center p-4 text-center font-mono text-[9px] uppercase leading-snug tracking-[0.2em] text-text-primary opacity-0 transition-opacity duration-300 [text-shadow:0_1px_12px_rgba(0,0,0,0.95)] sm:text-[10px] sm:tracking-[0.24em] group-hover/photo:opacity-100">
+                            {item.label}
+                          </p>
+                        </div>
+                        <figcaption className="sr-only">{item.label}</figcaption>
+                      </figure>
+                    </motion.li>
+                  ))}
+                </ul>
               </motion.div>
             ) : null}
           </AnimatePresence>
