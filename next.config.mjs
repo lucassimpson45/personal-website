@@ -29,6 +29,23 @@ const nextConfig = {
     }
     return config;
   },
+  /**
+   * Avoid intermediate caches serving stale HTML (e.g. Vercel x-vercel-cache: STALE).
+   * Browsers and CDNs should revalidate; use no-store for strongest freshness.
+   */
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "no-store",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;
