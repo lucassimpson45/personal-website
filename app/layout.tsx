@@ -20,11 +20,19 @@ const dmMono = DM_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://www.simpsonlite.com"),
   title: "Lucas Simpson",
   description:
     "Cinematic personal site — scroll, light, and a wireframe Colosseum at the edge of the future.",
   icons: {
-    icon: "/logos/website favi.png",
+    icon: [
+      {
+        url: "/logos/website%20favi.png",
+        type: "image/png",
+      },
+    ],
+    /** Aligns with app/icon.png (kept in sync with public asset). */
+    apple: "/logos/website%20favi.png",
   },
 };
 
