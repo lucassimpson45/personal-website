@@ -69,9 +69,8 @@ export function Nav() {
               scrollToId("#home");
               setMobileOpen(false);
             }}
-            className="shrink-0 text-center font-display text-base tracking-[0.12em] text-text-primary transition-colors hover:text-accent sm:text-lg min-h-[44px] min-w-0 max-w-[calc(100vw-8rem)] truncate px-2 sm:max-w-none sm:px-3 md:text-xl"
+            className="shrink-0 border-0 bg-transparent text-center font-display text-base tracking-[0.12em] text-text-primary shadow-none outline-none ring-0 transition-colors hover:text-accent focus:outline-none focus-visible:outline-none sm:text-lg min-h-[44px] min-w-0 max-w-[calc(100vw-8rem)] truncate px-2 sm:max-w-none sm:px-3 md:text-xl"
             data-cursor-hover
-            data-cursor-glow
           >
             Lucas Simpson
           </button>

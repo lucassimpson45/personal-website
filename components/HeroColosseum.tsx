@@ -445,7 +445,7 @@ export default function HeroColosseum() {
         >
           <h1
             data-cursor-glow="title"
-            className="mx-auto w-fit max-w-[min(100%,22rem)] self-center pl-[0.09em] text-center font-display text-[clamp(1.1rem,4.8vw,1.75rem)] leading-tight tracking-[0.18em] text-text-primary drop-shadow-[0_0_40px_rgba(0,0,0,0.85)] sm:pl-[0.12em] sm:text-4xl sm:tracking-[0.24em] md:pl-[0.15em] md:text-6xl md:tracking-[0.3em] lg:pl-[0.17em] lg:text-7xl lg:tracking-[0.34em]"
+            className="mx-auto w-full max-w-[min(100%,22rem)] text-center font-display text-[clamp(1.1rem,4.8vw,1.75rem)] leading-tight tracking-[0.18em] text-text-primary drop-shadow-[0_0_40px_rgba(0,0,0,0.85)] sm:text-4xl sm:tracking-[0.24em] md:text-6xl md:tracking-[0.3em] lg:text-7xl lg:tracking-[0.34em]"
           >
             LUCAS SIMPSON
           </h1>
