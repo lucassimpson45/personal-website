@@ -441,17 +441,17 @@ export default function HeroColosseum() {
         </div>
         <div
           ref={titleGroupRef}
-          className="pointer-events-none absolute inset-0 z-20 flex w-full max-w-full flex-col items-center px-4 pb-12 pt-24 will-change-[opacity] sm:px-6 sm:pb-16 sm:pt-28 md:px-10 md:pt-32"
+          className="pointer-events-none absolute inset-0 z-20 will-change-[opacity]"
         >
-          <div className="flex w-full max-w-full justify-center">
+          <div className="pointer-events-none absolute left-0 right-0 top-0 w-full pt-24 pb-12 text-center sm:pt-28 md:pt-32">
             <h1
               data-cursor-glow="title"
-              className="max-w-[min(100%,42rem)] text-center font-display text-[clamp(1.1rem,4.8vw,1.75rem)] leading-tight tracking-[0.18em] text-text-primary drop-shadow-[0_0_40px_rgba(0,0,0,0.85)] sm:text-4xl sm:tracking-[0.24em] md:whitespace-nowrap md:text-6xl md:tracking-[0.3em] lg:text-7xl lg:tracking-[0.34em]"
+              className="text-center font-display text-[clamp(1.1rem,4.8vw,1.75rem)] leading-tight tracking-[0.18em] text-text-primary drop-shadow-[0_0_40px_rgba(0,0,0,0.85)] sm:text-4xl sm:tracking-[0.24em] md:whitespace-nowrap md:text-6xl md:tracking-[0.3em] lg:text-7xl lg:tracking-[0.34em]"
             >
               LUCAS SIMPSON
             </h1>
+            <div className="mx-auto mt-6 h-px w-full max-w-2xl bg-gradient-to-r from-transparent via-accent/85 to-transparent sm:mt-8" />
           </div>
-          <div className="mx-auto mt-6 h-px w-full max-w-2xl bg-gradient-to-r from-transparent via-accent/85 to-transparent sm:mt-8" />
         </div>
       </div>
     </section>

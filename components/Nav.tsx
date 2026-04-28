@@ -59,24 +59,22 @@ export function Nav() {
         }}
       />
       {/* Top bar stays above the full-screen menu so the hamburger stays tappable */}
-      <div className="relative z-[60] grid w-full grid-cols-[1fr_auto_1fr] items-center gap-x-0 px-4 py-3 md:px-8 md:py-4">
-        <div className="min-w-0" aria-hidden="true" />
-
-        <div className="flex min-w-0 justify-center">
+      <div className="relative z-[60] flex w-full items-center justify-between px-4 py-3 md:px-8 md:py-4">
+        <div className="flex min-w-0 flex-1 items-center justify-start">
           <button
             type="button"
             onClick={() => {
               scrollToId("#home");
               setMobileOpen(false);
             }}
-            className="nav-brand-name shrink-0 appearance-none border-0 bg-transparent text-center font-display text-base tracking-[0.12em] text-text-primary [box-shadow:none] [-webkit-appearance:none] outline-none [outline-style:none] ring-0 [ring-offset:0] transition-colors [text-shadow:none] hover:text-accent focus:!shadow-none focus:!outline-none focus:ring-0 focus-visible:!shadow-none focus-visible:!outline-none sm:text-lg min-h-[44px] min-w-0 max-w-[calc(100vw-8rem)] truncate px-2 sm:max-w-none sm:px-3 md:text-xl"
+            className="nav-brand-name min-h-[44px] min-w-0 max-w-[calc(100%-4rem)] shrink-0 appearance-none border-0 bg-transparent px-2 text-left font-display text-base tracking-[0.12em] text-text-primary [box-shadow:none] [-webkit-appearance:none] outline-none [outline-style:none] ring-0 [ring-offset:0] transition-colors [text-shadow:none] hover:text-accent focus:!shadow-none focus:!outline-none focus:ring-0 focus-visible:!shadow-none focus-visible:!outline-none sm:max-w-none sm:px-0 sm:text-lg md:text-xl"
             data-cursor-hover
           >
             Lucas Simpson
           </button>
         </div>
 
-        <div className="flex min-w-0 items-center justify-end">
+        <div className="flex shrink-0 items-center justify-end">
           {!isMobile && (
             <ul className="flex items-center gap-6 md:gap-10">
               {links.map(({ href, label }) => (
