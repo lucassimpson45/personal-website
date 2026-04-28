@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://www.simpsonlite.com"),
   title: "Lucas Simpson",
   description:
-    "Cinematic personal site — scroll, light, and a wireframe Colosseum at the edge of the future.",
+    "Building companies, creating content, and figuring it out — from Rome.",
   icons: {
     icon: [
       {
@@ -33,6 +33,16 @@ export const metadata: Metadata = {
     ],
     /** Aligns with app/icon.png (kept in sync with public asset). */
     apple: "/logos/website%20favi.png",
+  },
+  openGraph: {
+    description:
+      "Building companies, creating content, and figuring it out — from Rome.",
+    images: [
+      {
+        url: "/logos/website%20favi.png",
+        type: "image/png",
+      },
+    ],
   },
 };
 
