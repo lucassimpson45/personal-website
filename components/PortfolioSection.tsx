@@ -7,6 +7,7 @@ import { useState } from "react";
 import { TechMarquee } from "@/components/TechMarquee";
 import { BUSINESSES_BY_SLUG, BUSINESS_SLUGS, type BusinessSlug } from "@/lib/business-pages";
 import { showcaseProjects } from "@/lib/portfolio-showcase";
+import { CoolStuffGraphicDesign } from "@/components/CoolStuffGraphicDesign";
 import { PHOTOGRAPHY_ITEMS } from "@/lib/photography";
 import type { YoutubeFeedVideo } from "@/lib/youtube-public";
 import { youtubeThumbnailUrl, youtubeWatchUrl } from "@/lib/youtube-public";
@@ -355,6 +356,7 @@ export function PortfolioSection({ latestYoutube, hasYoutubeConfig }: PortfolioS
                     </motion.li>
                   ))}
                 </ul>
+                <CoolStuffGraphicDesign />
               </motion.div>
             ) : null}
           </AnimatePresence>
