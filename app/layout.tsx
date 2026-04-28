@@ -23,6 +23,9 @@ export const metadata: Metadata = {
   title: "Lucas Simpson",
   description:
     "Cinematic personal site — scroll, light, and a wireframe Colosseum at the edge of the future.",
+  icons: {
+    icon: "/logos/website favi.png",
+  },
 };
 
 export default function RootLayout({

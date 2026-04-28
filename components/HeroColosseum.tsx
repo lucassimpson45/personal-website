@@ -11,8 +11,8 @@ gsap.registerPlugin(ScrollTrigger);
 
 const HERO_VH = 480;
 
-/** Base opacity for the sun layer (0–0.4); scroll fade multiplies on top. */
-const HERO_SUN_MAX_OPACITY = 0.4;
+/** Base opacity for the sun layer (0–0.4); scroll fade multiplies on top. Desktop only (layer hidden on small screens). */
+const HERO_SUN_MAX_OPACITY = 0.32;
 
 /** Title + rule fade out over this fraction of the hero scroll (0–1). */
 const HERO_TITLE_FADE_END = 0.42;
@@ -427,7 +427,7 @@ export default function HeroColosseum() {
         >
           <div
             ref={sunWrapRef}
-            className="pointer-events-none absolute inset-0 z-0"
+            className="pointer-events-none absolute inset-0 z-0 hidden md:block"
             style={{ opacity: HERO_SUN_MAX_OPACITY, willChange: "opacity" }}
           >
             <HeroSunBloom />
@@ -440,11 +440,11 @@ export default function HeroColosseum() {
         </div>
         <div
           ref={titleGroupRef}
-          className="pointer-events-none absolute inset-0 z-20 flex max-w-full flex-col items-center px-4 pb-12 pt-24 text-center will-change-[opacity] sm:px-6 sm:pb-16 sm:pt-28 md:px-10 md:pt-32"
+          className="pointer-events-none absolute inset-0 z-20 flex w-full max-w-full flex-col items-center px-4 pb-12 pt-24 text-center will-change-[opacity] sm:px-6 sm:pb-16 sm:pt-28 md:px-10 md:pt-32"
         >
           <h1
             data-cursor-glow="title"
-            className="max-w-[min(100%,22rem)] font-display text-[clamp(1.1rem,4.8vw,1.75rem)] leading-tight tracking-[0.18em] text-text-primary drop-shadow-[0_0_40px_rgba(0,0,0,0.85)] sm:text-4xl sm:tracking-[0.24em] md:text-6xl md:tracking-[0.3em] lg:text-7xl lg:tracking-[0.34em]"
+            className="mx-auto block w-fit max-w-[min(100%,22rem)] pl-[0.09em] text-center font-display text-[clamp(1.1rem,4.8vw,1.75rem)] leading-tight tracking-[0.18em] text-text-primary drop-shadow-[0_0_40px_rgba(0,0,0,0.85)] sm:pl-[0.12em] sm:text-4xl sm:tracking-[0.24em] md:pl-[0.15em] md:text-6xl md:tracking-[0.3em] lg:pl-[0.17em] lg:text-7xl lg:tracking-[0.34em]"
           >
             LUCAS SIMPSON
           </h1>
