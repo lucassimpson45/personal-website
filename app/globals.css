@@ -33,6 +33,22 @@ body {
   }
 }
 
+/* Remove default button chrome (grey box) on the centered nav site title */
+.nav-brand-name {
+  -webkit-appearance: none !important;
+  appearance: none !important;
+  background: transparent !important;
+  border: 0 !important;
+  box-shadow: none !important;
+}
+
+.nav-brand-name:focus,
+.nav-brand-name:focus-visible,
+.nav-brand-name:active {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;
