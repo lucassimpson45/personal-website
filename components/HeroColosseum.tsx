@@ -11,8 +11,8 @@ gsap.registerPlugin(ScrollTrigger);
 
 const HERO_VH = 480;
 
-/** Base opacity for the sun layer (0–0.4); scroll fade multiplies on top. Desktop only (layer hidden on small screens). */
-const HERO_SUN_MAX_OPACITY = 0.32;
+/** Base max opacity for the sun wrapper (0–1); scroll fade multiplies. Desktop: md+ only via CSS. */
+const HERO_SUN_MAX_OPACITY = 0.5;
 
 /** Title + rule fade out over this fraction of the hero scroll (0–1). */
 const HERO_TITLE_FADE_END = 0.42;
@@ -427,7 +427,7 @@ export default function HeroColosseum() {
         >
           <div
             ref={sunWrapRef}
-            className="pointer-events-none absolute inset-0 z-0 hidden md:block"
+            className="pointer-events-none absolute inset-0 z-0 max-md:hidden md:block"
             style={{ opacity: HERO_SUN_MAX_OPACITY, willChange: "opacity" }}
           >
             <HeroSunBloom />
@@ -436,7 +436,8 @@ export default function HeroColosseum() {
             ref={mountRef}
             className="pointer-events-none absolute inset-0 z-10 h-full w-full min-h-0 min-w-0 [&_canvas]:pointer-events-none [&_canvas]:block [&_canvas]:h-full [&_canvas]:w-full [&_canvas]:min-h-0"
           />
-          <div className="pointer-events-none absolute inset-0 z-[15] bg-gradient-to-b from-bg/20 via-transparent to-bg/90" />
+          {/* keep top clear so the sun (behind the canvas) stays visible; darken toward bottom only */}
+          <div className="pointer-events-none absolute inset-0 z-[15] bg-gradient-to-b from-transparent via-bg/0 via-40% to-bg/90" />
         </div>
         <div
           ref={titleGroupRef}

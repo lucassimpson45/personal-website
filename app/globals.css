@@ -108,30 +108,30 @@ body {
       transparent 70%
     );
     mix-blend-mode: soft-light;
-    opacity: 0.82;
+    opacity: 0.9;
     animation: hero-sun-pulse 7s ease-in-out infinite;
   }
 
   .hero-sun-halo {
     background: radial-gradient(
       circle at 50% 28%,
-      rgba(255, 255, 255, 0.45) 0%,
-      rgba(255, 200, 130, 0.14) 40%,
+      rgba(255, 255, 255, 0.5) 0%,
+      rgba(255, 200, 130, 0.16) 40%,
       transparent 65%
     );
     mix-blend-mode: screen;
-    opacity: 0.5;
+    opacity: 0.58;
     animation: hero-sun-drift 16s ease-in-out infinite alternate;
   }
 
   @keyframes hero-sun-pulse {
     0%,
     100% {
-      opacity: 0.78;
+      opacity: 0.88;
       transform: scale(1);
     }
     50% {
-      opacity: 0.95;
+      opacity: 0.98;
       transform: scale(1.035);
     }
   }

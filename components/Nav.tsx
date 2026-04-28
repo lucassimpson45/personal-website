@@ -59,67 +59,73 @@ export function Nav() {
         }}
       />
       {/* Top bar stays above the full-screen menu so the hamburger stays tappable */}
-      <div className="relative z-[60] flex items-center justify-between px-4 py-3 md:px-8 md:py-4">
-        <button
-          type="button"
-          onClick={() => {
-            scrollToId("#home");
-            setMobileOpen(false);
-          }}
-          className="min-h-[44px] min-w-[44px] -translate-x-2 px-2 text-left font-display text-base tracking-[0.12em] text-text-primary transition-colors hover:text-accent sm:text-lg md:translate-x-0 md:text-xl"
-          data-cursor-hover
-          data-cursor-glow
-        >
-          Lucas Simpson
-        </button>
+      <div className="relative z-[60] grid w-full grid-cols-[1fr_auto_1fr] items-center gap-x-0 px-4 py-3 md:px-8 md:py-4">
+        <div className="min-w-0" aria-hidden="true" />
 
-        {!isMobile && (
-          <ul className="flex items-center gap-8 md:gap-10">
-            {links.map(({ href, label }) => (
-              <li key={href}>
-                <a
-                  href={href}
-                  className={linkClass}
-                  data-cursor-glow
-                  onClick={(e) => {
-                    e.preventDefault();
-                    scrollToId(href);
-                  }}
-                >
-                  {label}
-                </a>
-              </li>
-            ))}
-          </ul>
-        )}
-
-        {isMobile && (
+        <div className="flex min-w-0 justify-center">
           <button
             type="button"
-            aria-expanded={mobileOpen}
-            aria-label={mobileOpen ? "Close menu" : "Open menu"}
-            className="flex min-h-11 min-w-11 touch-manipulation flex-col items-center justify-center gap-1.5 rounded border border-border bg-surface/80"
-            onClick={() => setMobileOpen((o) => !o)}
+            onClick={() => {
+              scrollToId("#home");
+              setMobileOpen(false);
+            }}
+            className="shrink-0 text-center font-display text-base tracking-[0.12em] text-text-primary transition-colors hover:text-accent sm:text-lg min-h-[44px] min-w-0 max-w-[calc(100vw-8rem)] truncate px-2 sm:max-w-none sm:px-3 md:text-xl"
             data-cursor-hover
             data-cursor-glow
           >
-            <span
-              className={`block h-px w-5 bg-text-primary transition-transform ${
-                mobileOpen ? "translate-y-1 rotate-45" : ""
-              }`}
-            />
-            <span
-              className={`block h-px w-5 bg-text-primary transition-opacity ${
-                mobileOpen ? "opacity-0" : ""
-              }`}
-            />
-            <span
-              className={`block h-px w-5 bg-text-primary transition-transform ${
-                mobileOpen ? "-translate-y-1 -rotate-45" : ""
-              }`}
-            />
+            Lucas Simpson
           </button>
-        )}
+        </div>
+
+        <div className="flex min-w-0 items-center justify-end">
+          {!isMobile && (
+            <ul className="flex items-center gap-6 md:gap-10">
+              {links.map(({ href, label }) => (
+                <li key={href}>
+                  <a
+                    href={href}
+                    className={linkClass}
+                    data-cursor-glow
+                    onClick={(e) => {
+                      e.preventDefault();
+                      scrollToId(href);
+                    }}
+                  >
+                    {label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {isMobile && (
+            <button
+              type="button"
+              aria-expanded={mobileOpen}
+              aria-label={mobileOpen ? "Close menu" : "Open menu"}
+              className="flex min-h-11 min-w-11 shrink-0 touch-manipulation flex-col items-center justify-center gap-1.5 rounded border border-border bg-surface/80"
+              onClick={() => setMobileOpen((o) => !o)}
+              data-cursor-hover
+              data-cursor-glow
+            >
+              <span
+                className={`block h-px w-5 bg-text-primary transition-transform ${
+                  mobileOpen ? "translate-y-1 rotate-45" : ""
+                }`}
+              />
+              <span
+                className={`block h-px w-5 bg-text-primary transition-opacity ${
+                  mobileOpen ? "opacity-0" : ""
+                }`}
+              />
+              <span
+                className={`block h-px w-5 bg-text-primary transition-transform ${
+                  mobileOpen ? "-translate-y-1 -rotate-45" : ""
+                }`}
+              />
+            </button>
+          )}
+        </div>
       </div>
 
       <AnimatePresence>
