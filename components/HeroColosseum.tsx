@@ -12,6 +12,9 @@ gsap.registerPlugin(ScrollTrigger);
 
 const HERO_VH = 480;
 
+/** Base opacity for the sun layer (0–0.4); scroll fade multiplies on top. */
+const HERO_SUN_MAX_OPACITY = 0.4;
+
 /** Sun is fully visible at hero progress 0 and gone by this progress (40% of hero scroll). */
 const HERO_SUN_FADE_END = 0.4;
 
@@ -144,19 +147,19 @@ function MobileHeroFallback({ sunWrapRef }: { sunWrapRef: Ref<HTMLDivElement> })
         }}
       />
       <div
-        className="pointer-events-none absolute inset-0 opacity-70"
+        ref={sunWrapRef}
+        className="pointer-events-none absolute inset-0 z-0"
+        style={{ opacity: HERO_SUN_MAX_OPACITY, willChange: "opacity" }}
+      >
+        <HeroSunBloom />
+      </div>
+      <div
+        className="pointer-events-none absolute inset-0 z-[5] opacity-70"
         style={{
           background:
             "radial-gradient(ellipse 80% 50% at 50% 60%, rgba(200, 216, 255, 0.12), transparent 55%)",
         }}
       />
-      <div
-        ref={sunWrapRef}
-        className="pointer-events-none absolute inset-0 z-[14]"
-        style={{ opacity: 1, willChange: "opacity" }}
-      >
-        <HeroSunBloom />
-      </div>
       <div className="relative z-20 flex w-full flex-col items-center px-6 text-center md:px-10">
         <h1
           data-cursor-glow="title"
@@ -191,7 +194,7 @@ export default function HeroColosseum() {
     const applySunOpacity = (progress: number) => {
       const el = sunWrapRef.current;
       if (!el) return;
-      el.style.opacity = String(sunOpacityFromHeroProgress(progress));
+      el.style.opacity = String(HERO_SUN_MAX_OPACITY * sunOpacityFromHeroProgress(progress));
     };
 
     const st = ScrollTrigger.create({
@@ -245,7 +248,8 @@ export default function HeroColosseum() {
       });
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       renderer.setSize(window.innerWidth, window.innerHeight);
-      renderer.setClearColor(0x080808, 1);
+      /** Transparent clear so the HeroSunBloom layer (below the canvas) reads as a backlit sky. */
+      renderer.setClearColor(0x000000, 0);
       renderer.toneMapping = THREE.ACESFilmicToneMapping;
       renderer.toneMappingExposure = 1.05;
       mountRef.current.appendChild(renderer.domElement);
@@ -424,17 +428,17 @@ export default function HeroColosseum() {
     >
       <div className="relative sticky top-0 h-screen w-full overflow-hidden">
         <div
-          ref={mountRef}
-          className="absolute inset-0 [&_canvas]:block [&_canvas]:h-full [&_canvas]:w-full"
-        />
-        <div
           ref={sunWrapRef}
-          className="pointer-events-none absolute inset-0 z-[14]"
-          style={{ opacity: 1, willChange: "opacity" }}
+          className="pointer-events-none absolute inset-0 z-0"
+          style={{ opacity: HERO_SUN_MAX_OPACITY, willChange: "opacity" }}
         >
           <HeroSunBloom />
         </div>
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-bg/20 via-transparent to-bg/90" />
+        <div
+          ref={mountRef}
+          className="absolute inset-0 z-10 [&_canvas]:block [&_canvas]:h-full [&_canvas]:w-full"
+        />
+        <div className="pointer-events-none absolute inset-0 z-[15] bg-gradient-to-b from-bg/20 via-transparent to-bg/90" />
         <div className="pointer-events-none absolute inset-0 z-20 flex flex-col items-center px-6 pb-16 pt-28 text-center md:px-10 md:pt-32">
           <h1
             data-cursor-glow="title"
