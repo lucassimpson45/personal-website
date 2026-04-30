@@ -1,10 +1,10 @@
 import type { YoutubeFeedVideo } from "@/lib/youtube-public";
 
-const FEED_REVALIDATE_SECONDS = 120;
+const FEED_REVALIDATE_SECONDS = 30;
 
 /**
  * Pull the latest N videos from a public YouTube channel (Atom feed, no API key).
- * Revalidates on a short interval so new uploads show up after a few minutes.
+ * Revalidates on a short interval so new uploads show up quickly.
  */
 function channelFeedUrl(channelId: string) {
   return `https://www.youtube.com/feeds/videos.xml?channel_id=${encodeURIComponent(channelId)}`;
@@ -42,9 +42,17 @@ export async function fetchLatestChannelVideos(
     return [];
   }
   try {
-    const res = await fetch(channelFeedUrl(channelId.trim()), {
-      next: { revalidate: FEED_REVALIDATE_SECONDS },
-    });
+    /**
+     * Next.js rejects `cache: 'no-store'` together with `next.revalidate` on the same
+     * fetch (both are ignored). Use either time-based revalidation or no-store.
+     * Set `YOUTUBE_FEED_NO_STORE=1` to force uncached RSS reads (e.g. smoke tests after deploy).
+     */
+    const res = await fetch(
+      channelFeedUrl(channelId.trim()),
+      process.env.YOUTUBE_FEED_NO_STORE === "1"
+        ? { cache: "no-store" as const }
+        : { next: { revalidate: FEED_REVALIDATE_SECONDS } },
+    );
     if (!res.ok) {
       return [];
     }
