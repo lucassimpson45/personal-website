@@ -221,7 +221,8 @@ export default function HeroColosseum() {
       if (!mountRef.current || !sectionRef.current) return;
 
       const scene = new THREE.Scene();
-      scene.fog = new THREE.FogExp2(0x080808, 0.012);
+      const fogExp = new THREE.FogExp2(0x080808, 0.008);
+      scene.fog = fogExp;
 
       const mount = mountRef.current;
       const camAspect =
@@ -277,6 +278,9 @@ export default function HeroColosseum() {
       fill.position.set(0, 8, 20);
       scene.add(fill);
 
+      const rimLerpA = new THREE.Color(0xaaccff);
+      const rimLerpB = new THREE.Color(0x6688ff);
+
       const narrow = (mount.clientWidth > 0 ? mount.clientWidth : window.innerWidth) < 768;
       const particleCount = narrow ? 550 : 1400;
       const positions = new Float32Array(particleCount * 3);
@@ -318,11 +322,7 @@ export default function HeroColosseum() {
           progressRef.current = p;
           sampleLightColor(p, lightColor);
           spot.color.copy(lightColor);
-          rimLight.color.lerpColors(
-            new THREE.Color(0xaaccff),
-            new THREE.Color(0x6688ff),
-            p,
-          );
+          rimLight.color.lerpColors(rimLerpA, rimLerpB, p);
 
           const orbit = p * Math.PI * 0.85;
           const dist = 40 - p * 29;
@@ -332,10 +332,8 @@ export default function HeroColosseum() {
           camera.position.y = camY;
           camera.lookAt(0, 3.5 + p * 2.2, 0);
 
-          scene.fog = new THREE.FogExp2(
-            p > 0.72 ? 0x05060c : 0x080808,
-            0.008 + p * 0.018,
-          );
+          fogExp.color.setHex(p > 0.72 ? 0x05060c : 0x080808);
+          fogExp.density = 0.008 + p * 0.018;
 
           const wireOp = 0.32 + p * 0.38;
           wireMaterials.forEach((m) => {
@@ -394,6 +392,18 @@ export default function HeroColosseum() {
         if (canvas.parentNode) {
           canvas.parentNode.removeChild(canvas);
         }
+
+        scene.remove(ambient);
+        ambient.dispose();
+        scene.remove(spot.target);
+        scene.remove(spot);
+        spot.dispose();
+        scene.remove(rimLight);
+        rimLight.dispose();
+        scene.remove(fill);
+        fill.dispose();
+        scene.fog = null;
+
         renderer.dispose();
         const seenGeometries = new WeakSet<THREE.BufferGeometry>();
         scene.traverse((obj) => {
