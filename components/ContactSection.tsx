@@ -11,9 +11,6 @@ type FormValues = {
   message: string;
 };
 
-const WEB3FORMS_ENDPOINT = "https://api.web3forms.com/submit";
-const WEB3FORMS_ACCESS_KEY = "a7901fb1-04be-486a-ba13-f9ef92a07dec";
-
 export function ContactSection() {
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">(
     "idle",
@@ -28,11 +25,10 @@ export function ContactSection() {
   const onSubmit = async (data: FormValues) => {
     setStatus("sending");
     try {
-      const res = await fetch(WEB3FORMS_ENDPOINT, {
+      const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({
-          access_key: WEB3FORMS_ACCESS_KEY,
           name: data.name,
           email: data.email,
           subject: data.subject,
