@@ -9,6 +9,7 @@ type FormValues = {
   email: string;
   subject: string;
   message: string;
+  botcheck: string;
 };
 
 const WEB3FORMS_ENDPOINT = "https://api.web3forms.com/submit";
@@ -23,7 +24,7 @@ export function ContactSection() {
     handleSubmit,
     reset,
     formState: { errors },
-  } = useForm<FormValues>({ mode: "onBlur" });
+  } = useForm<FormValues>({ mode: "onBlur", defaultValues: { botcheck: "" } });
 
   const onSubmit = async (data: FormValues) => {
     setStatus("sending");
@@ -37,6 +38,7 @@ export function ContactSection() {
           email: data.email,
           subject: data.subject,
           message: data.message,
+          botcheck: data.botcheck,
         }),
       });
       const payload = (await res.json().catch(() => null)) as { success?: boolean } | null;
@@ -71,9 +73,17 @@ export function ContactSection() {
 
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="mt-14 space-y-5"
+          className="relative mt-14 space-y-5"
           noValidate
         >
+          <input
+            type="text"
+            {...register("botcheck")}
+            tabIndex={-1}
+            autoComplete="off"
+            aria-hidden="true"
+            className="absolute opacity-0 top-0 left-0 h-0 w-0 -z-1 overflow-hidden"
+          />
           <div>
             <label htmlFor="name" className="sr-only">
               Name
