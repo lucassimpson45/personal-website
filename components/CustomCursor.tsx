@@ -6,8 +6,12 @@ const SQUARE_COUNT = 36;
 const GLITCH_SQUARES = 8;
 const GLOW_PROXIMITY_PX = 150;
 const GLITCH_RESET_MS = 90;
+const BLOOM_LERP = 0.1;
 const TITLE_GLOW_SELECTOR = '[data-cursor-glow="title"]';
 const INTERACTIVE_SELECTOR = "a, button, [data-cursor]";
+
+const BLOOM_BG_NORMAL =
+  "radial-gradient(circle, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.04) 40%, transparent 70%)";
 
 function distToRect(px: number, py: number, r: DOMRect): number {
   const cx = Math.max(r.left, Math.min(px, r.right));
@@ -73,6 +77,10 @@ export function CustomCursor() {
     getPointerFineServerSnapshot
   );
 
+  const bloomRef = useRef<HTMLDivElement | null>(null);
+  const bloomPosRef = useRef({ x: 0, y: 0 });
+  const bloomGlitchUntilRef = useRef(0);
+  const bloomHotRef = useRef(0);
   const squareRefs = useRef<(HTMLDivElement | null)[]>([]);
   const dataRef = useRef<ReturnType<typeof initSquareArrays> | null>(null);
   if (dataRef.current === null) {
@@ -135,6 +143,8 @@ export function CustomCursor() {
         d.glitchDx[i] = Math.random() * 60 - 30;
         d.glitchDy[i] = Math.random() * 60 - 30;
       }
+      bloomHotRef.current = 1;
+      bloomGlitchUntilRef.current = performance.now() + GLITCH_RESET_MS;
       if (glitchTimeoutRef.current !== null) {
         clearTimeout(glitchTimeoutRef.current);
       }
@@ -155,6 +165,12 @@ export function CustomCursor() {
       if (!syncedInitialPositions) {
         syncedInitialPositions = true;
         const scale = hoverInteractiveRef.current ? 1.6 : 1;
+        bloomPosRef.current.x = e.clientX;
+        bloomPosRef.current.y = e.clientY;
+        const bloomEl = bloomRef.current;
+        if (bloomEl) {
+          bloomEl.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0) translate(-50%, -50%)`;
+        }
         for (let i = 0; i < SQUARE_COUNT; i++) {
           d.curX[i] = e.clientX + d.baseOffX[i]! * scale + d.glitchDx[i]!;
           d.curY[i] = e.clientY + d.baseOffY[i]! * scale + d.glitchDy[i]!;
@@ -171,11 +187,32 @@ export function CustomCursor() {
       const { x: mx, y: my } = mouseRef.current;
       const scale = hoverInteractiveRef.current ? 1.6 : 1;
 
+      const bxp = bloomPosRef.current.x + (mx - bloomPosRef.current.x) * BLOOM_LERP;
+      const byp = bloomPosRef.current.y + (my - bloomPosRef.current.y) * BLOOM_LERP;
+      bloomPosRef.current.x = bxp;
+      bloomPosRef.current.y = byp;
+      const bloomEl = bloomRef.current;
+      if (bloomEl) {
+        bloomEl.style.transform = `translate3d(${bxp}px, ${byp}px, 0) translate(-50%, -50%)`;
+        const now = performance.now();
+        if (now < bloomGlitchUntilRef.current) {
+          bloomHotRef.current = 1;
+        } else {
+          bloomHotRef.current = Math.max(0, bloomHotRef.current * 0.945);
+        }
+        const h = bloomHotRef.current;
+        if (h < 0.004) {
+          bloomHotRef.current = 0;
+          bloomEl.style.background = BLOOM_BG_NORMAL;
+        } else {
+          const centerA = 0.12 + (0.22 - 0.12) * h;
+          bloomEl.style.background = `radial-gradient(circle, rgba(255,255,255,${centerA}) 0%, rgba(255,255,255,0.04) 40%, transparent 70%)`;
+        }
+      }
+
       for (let i = 0; i < SQUARE_COUNT; i++) {
-        const tx =
-          mx + d.baseOffX[i]! * scale + d.glitchDx[i]!;
-        const ty =
-          my + d.baseOffY[i]! * scale + d.glitchDy[i]!;
+        const tx = mx + d.baseOffX[i]! * scale + d.glitchDx[i]!;
+        const ty = my + d.baseOffY[i]! * scale + d.glitchDy[i]!;
         const f = d.lerp[i]!;
         d.curX[i]! += (tx - d.curX[i]!) * f;
         d.curY[i]! += (ty - d.curY[i]!) * f;
@@ -207,6 +244,21 @@ export function CustomCursor() {
 
   if (!isFinePointer) return null;
 
+  const bloomStyle: CSSProperties = {
+    position: "fixed",
+    pointerEvents: "none",
+    zIndex: 10000,
+    width: 120,
+    height: 120,
+    borderRadius: "50%",
+    background: BLOOM_BG_NORMAL,
+    filter: "blur(8px)",
+    left: 0,
+    top: 0,
+    border: "none",
+    transform: "translate3d(0px, 0px, 0) translate(-50%, -50%)",
+  };
+
   const squareStyle: CSSProperties = {
     width: 7,
     height: 7,
@@ -221,6 +273,7 @@ export function CustomCursor() {
 
   return (
     <>
+      <div ref={bloomRef} aria-hidden style={bloomStyle} />
       {Array.from({ length: SQUARE_COUNT }, (_, i) => (
         <div
           key={i}
