@@ -96,6 +96,9 @@ function BrandSvg({ icon }: { icon: BrandIconData }) {
       viewBox="0 0 24 24"
       xmlns="http://www.w3.org/2000/svg"
       className="h-9 w-9 shrink-0"
+      style={{
+        filter: "brightness(0) invert(1) drop-shadow(0 0 6px rgba(255,255,255,0.5))",
+      }}
       aria-hidden
     >
       <title>{icon.title}</title>
@@ -131,9 +134,17 @@ function LocalLogo({
     return <MonogramChip abbr={abbr} />;
   }
 
-  const rasterClass = rasterLight
-    ? "tech-marquee-raster-light object-contain h-9 w-9 shrink-0 sm:h-11 sm:w-11"
-    : "tech-marquee-raster-dark object-contain h-9 w-9 shrink-0 sm:h-11 sm:w-11";
+  const isBusinessLogo = /\/luda\.|\/envowl\./i.test(src);
+
+  const rasterClass = isBusinessLogo
+    ? "object-contain h-9 w-9 shrink-0 sm:h-11 sm:w-11"
+    : rasterLight
+      ? "tech-marquee-raster-light object-contain h-9 w-9 shrink-0 sm:h-11 sm:w-11"
+      : "tech-marquee-raster-dark object-contain h-9 w-9 shrink-0 sm:h-11 sm:w-11";
+
+  const imgStyle = isBusinessLogo
+    ? { filter: "drop-shadow(0 0 6px rgba(255,255,255,0.4))" }
+    : undefined;
 
   return (
     // eslint-disable-next-line @next/next/no-img-element -- static PNGs in /public/logos
@@ -143,6 +154,7 @@ function LocalLogo({
       width={48}
       height={48}
       className={rasterClass}
+      style={imgStyle}
       onError={onError}
       title={label}
     />
