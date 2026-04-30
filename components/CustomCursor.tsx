@@ -1,108 +1,237 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { type CSSProperties, useEffect, useRef, useSyncExternalStore } from "react";
 
-const LERP = 0.12;
-const CURSOR_DIAMETER_PX = 60;
-const TITLE_GLOW_PROXIMITY_PX = 150;
+const SQUARE_COUNT = 36;
+const GLITCH_SQUARES = 8;
+const GLOW_PROXIMITY_PX = 150;
+const GLITCH_RESET_MS = 90;
+const TITLE_GLOW_SELECTOR = '[data-cursor-glow="title"]';
+const INTERACTIVE_SELECTOR = "a, button, [data-cursor]";
 
-function distToRect(px: number, py: number, r: DOMRect) {
+function distToRect(px: number, py: number, r: DOMRect): number {
   const cx = Math.max(r.left, Math.min(px, r.right));
   const cy = Math.max(r.top, Math.min(py, r.bottom));
   return Math.hypot(px - cx, py - cy);
 }
 
-function updateTitleGlowProximity(px: number, py: number) {
-  document.querySelectorAll('[data-cursor-glow="title"]').forEach((node) => {
-    if (!(node instanceof HTMLElement)) return;
-    const rect = node.getBoundingClientRect();
-    if (rect.width === 0 && rect.height === 0) return;
-    const d = distToRect(px, py, rect);
-    if (d <= TITLE_GLOW_PROXIMITY_PX) {
-      node.classList.add("glow-active");
-    } else {
-      node.classList.remove("glow-active");
-    }
-  });
+function subscribePointerFine(onChange: () => void): () => void {
+  if (typeof window === "undefined") return () => {};
+  const mq = window.matchMedia("(pointer: fine)");
+  mq.addEventListener("change", onChange);
+  return () => mq.removeEventListener("change", onChange);
 }
 
-function clearTitleGlowActive() {
-  document.querySelectorAll('[data-cursor-glow="title"]').forEach((node) => {
-    if (node instanceof HTMLElement) {
-      node.classList.remove("glow-active");
-    }
-  });
+function getPointerFineSnapshot(): boolean {
+  if (typeof window === "undefined") return false;
+  return window.matchMedia("(pointer: fine)").matches;
+}
+
+function getPointerFineServerSnapshot(): boolean {
+  return false;
+}
+
+function pickGlitchIndices(): number[] {
+  const pool = Array.from({ length: SQUARE_COUNT }, (_, i) => i);
+  const out: number[] = [];
+  for (let k = 0; k < GLITCH_SQUARES; k++) {
+    const j = Math.floor(Math.random() * pool.length);
+    out.push(pool[j]!);
+    pool.splice(j, 1);
+  }
+  return out;
+}
+
+function initSquareArrays() {
+  const baseOffX: number[] = [];
+  const baseOffY: number[] = [];
+  const lerp: number[] = [];
+  const curX: number[] = [];
+  const curY: number[] = [];
+  const glitchDx: number[] = [];
+  const glitchDy: number[] = [];
+
+  for (let i = 0; i < SQUARE_COUNT; i++) {
+    const ox = Math.random() * 44 - 22;
+    const oy = Math.random() * 44 - 22;
+    baseOffX.push(ox);
+    baseOffY.push(oy);
+    lerp.push(Math.random() * 0.15 + 0.05);
+    curX.push(ox);
+    curY.push(oy);
+    glitchDx.push(0);
+    glitchDy.push(0);
+  }
+
+  return { baseOffX, baseOffY, lerp, curX, curY, glitchDx, glitchDy };
 }
 
 export function CustomCursor() {
-  const [enabled, setEnabled] = useState(false);
-  const target = useRef({ x: -100, y: -100 });
-  const pos = useRef({ x: -100, y: -100 });
-  const ringRef = useRef<HTMLDivElement>(null);
-  const rafId = useRef(0);
+  const isFinePointer = useSyncExternalStore(
+    subscribePointerFine,
+    getPointerFineSnapshot,
+    getPointerFineServerSnapshot
+  );
+
+  const squareRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const dataRef = useRef<ReturnType<typeof initSquareArrays> | null>(null);
+  if (dataRef.current === null) {
+    dataRef.current = initSquareArrays();
+  }
+
+  const mouseRef = useRef({ x: 0, y: 0 });
+  const hoverInteractiveRef = useRef(false);
+  const rafRef = useRef(0);
+  const glitchTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
-    const mq = window.matchMedia("(min-width: 769px) and (pointer: fine)");
-    const sync = () => setEnabled(mq.matches);
-    sync();
-    mq.addEventListener("change", sync);
-    return () => mq.removeEventListener("change", sync);
-  }, []);
+    if (!isFinePointer) return;
 
-  const onMove = useCallback((e: MouseEvent) => {
-    target.current.x = e.clientX;
-    target.current.y = e.clientY;
-  }, []);
+    document.body.classList.add("cursor-custom");
 
-  useEffect(() => {
-    if (!enabled) return;
+    const d = dataRef.current!;
+
+    const clearTitleGlowActive = () => {
+      document.querySelectorAll(TITLE_GLOW_SELECTOR).forEach((node) => {
+        node.classList.remove("glow-active");
+      });
+    };
+
+    const updateTitleGlow = (px: number, py: number) => {
+      document.querySelectorAll(TITLE_GLOW_SELECTOR).forEach((node) => {
+        if (!(node instanceof HTMLElement)) return;
+        const rect = node.getBoundingClientRect();
+        if (rect.width === 0 && rect.height === 0) return;
+        const dist = distToRect(px, py, rect);
+        if (dist <= GLOW_PROXIMITY_PX) {
+          node.classList.add("glow-active");
+        } else {
+          node.classList.remove("glow-active");
+        }
+      });
+    };
+
+    const onMouseOver = (e: MouseEvent) => {
+      const t = e.target;
+      if (t instanceof Element && t.closest(INTERACTIVE_SELECTOR)) {
+        hoverInteractiveRef.current = true;
+      }
+    };
+
+    const onMouseOut = (e: MouseEvent) => {
+      const rel = e.relatedTarget;
+      if (!(rel instanceof Element) || !rel.closest(INTERACTIVE_SELECTOR)) {
+        hoverInteractiveRef.current = false;
+      }
+    };
+
+    const armGlitchBurst = () => {
+      for (let i = 0; i < SQUARE_COUNT; i++) {
+        d.glitchDx[i] = 0;
+        d.glitchDy[i] = 0;
+      }
+      const idxs = pickGlitchIndices();
+      for (const i of idxs) {
+        d.glitchDx[i] = Math.random() * 60 - 30;
+        d.glitchDy[i] = Math.random() * 60 - 30;
+      }
+      if (glitchTimeoutRef.current !== null) {
+        clearTimeout(glitchTimeoutRef.current);
+      }
+      glitchTimeoutRef.current = setTimeout(() => {
+        glitchTimeoutRef.current = null;
+        for (let i = 0; i < SQUARE_COUNT; i++) {
+          d.glitchDx[i] = 0;
+          d.glitchDy[i] = 0;
+        }
+      }, GLITCH_RESET_MS);
+    };
+
+    let syncedInitialPositions = false;
+
+    const onMouseMove = (e: MouseEvent) => {
+      mouseRef.current.x = e.clientX;
+      mouseRef.current.y = e.clientY;
+      if (!syncedInitialPositions) {
+        syncedInitialPositions = true;
+        const scale = hoverInteractiveRef.current ? 1.6 : 1;
+        for (let i = 0; i < SQUARE_COUNT; i++) {
+          d.curX[i] = e.clientX + d.baseOffX[i]! * scale + d.glitchDx[i]!;
+          d.curY[i] = e.clientY + d.baseOffY[i]! * scale + d.glitchDy[i]!;
+        }
+      }
+      armGlitchBurst();
+    };
+
+    document.addEventListener("mouseover", onMouseOver, true);
+    document.addEventListener("mouseout", onMouseOut, true);
+    window.addEventListener("mousemove", onMouseMove, { passive: true });
 
     const tick = () => {
-      pos.current.x += (target.current.x - pos.current.x) * LERP;
-      pos.current.y += (target.current.y - pos.current.y) * LERP;
-      const el = ringRef.current;
-      if (el) {
-        el.style.transform = `translate3d(${pos.current.x}px, ${pos.current.y}px, 0) translate(-50%, -50%)`;
+      const { x: mx, y: my } = mouseRef.current;
+      const scale = hoverInteractiveRef.current ? 1.6 : 1;
+
+      for (let i = 0; i < SQUARE_COUNT; i++) {
+        const tx =
+          mx + d.baseOffX[i]! * scale + d.glitchDx[i]!;
+        const ty =
+          my + d.baseOffY[i]! * scale + d.glitchDy[i]!;
+        const f = d.lerp[i]!;
+        d.curX[i]! += (tx - d.curX[i]!) * f;
+        d.curY[i]! += (ty - d.curY[i]!) * f;
+        const el = squareRefs.current[i];
+        if (el) {
+          el.style.transform = `translate3d(${d.curX[i]}px, ${d.curY[i]}px, 0)`;
+        }
       }
-      updateTitleGlowProximity(pos.current.x, pos.current.y);
-      rafId.current = requestAnimationFrame(tick);
+
+      updateTitleGlow(mx, my);
+      rafRef.current = requestAnimationFrame(tick);
     };
 
-    rafId.current = requestAnimationFrame(tick);
-    window.addEventListener("mousemove", onMove, { passive: true });
+    rafRef.current = requestAnimationFrame(tick);
 
     return () => {
-      window.removeEventListener("mousemove", onMove);
-      cancelAnimationFrame(rafId.current);
+      document.body.classList.remove("cursor-custom");
+      window.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseover", onMouseOver, true);
+      document.removeEventListener("mouseout", onMouseOut, true);
+      cancelAnimationFrame(rafRef.current);
+      if (glitchTimeoutRef.current !== null) {
+        clearTimeout(glitchTimeoutRef.current);
+        glitchTimeoutRef.current = null;
+      }
       clearTitleGlowActive();
     };
-  }, [enabled, onMove]);
+  }, [isFinePointer]);
 
-  useEffect(() => {
-    document.body.classList.toggle("cursor-custom", enabled);
-    return () => document.body.classList.remove("cursor-custom");
-  }, [enabled]);
+  if (!isFinePointer) return null;
 
-  useEffect(() => {
-    if (!enabled) {
-      clearTitleGlowActive();
-    }
-  }, [enabled]);
-
-  if (!enabled) return null;
+  const squareStyle: CSSProperties = {
+    width: 7,
+    height: 7,
+    border: "1px solid rgba(255,255,255,0.85)",
+    background: "transparent",
+    position: "fixed",
+    pointerEvents: "none",
+    zIndex: 10001,
+    left: 0,
+    top: 0,
+    willChange: "transform",
+  };
 
   return (
-    <div
-      ref={ringRef}
-      aria-hidden
-      className="pointer-events-none fixed left-0 top-0 rounded-full bg-white"
-      style={{
-        width: CURSOR_DIAMETER_PX,
-        height: CURSOR_DIAMETER_PX,
-        zIndex: 9999,
-        mixBlendMode: "difference",
-        transform: "translate3d(-100px, -100px, 0) translate(-50%, -50%)",
-      }}
-    />
+    <>
+      {Array.from({ length: SQUARE_COUNT }, (_, i) => (
+        <div
+          key={i}
+          aria-hidden
+          ref={(el) => {
+            squareRefs.current[i] = el;
+          }}
+          style={squareStyle}
+        />
+      ))}
+    </>
   );
 }
