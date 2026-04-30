@@ -217,7 +217,6 @@ export function CustomCursor() {
     zIndex: 10001,
     left: 0,
     top: 0,
-    willChange: "transform",
   };
 
   return (
