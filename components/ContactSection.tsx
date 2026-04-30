@@ -52,7 +52,7 @@ export function ContactSection() {
   };
 
   const inputClass =
-    "w-full rounded border border-white/18 bg-[#0a0a0a]/75 px-4 py-3 font-mono text-xs text-white/95 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] outline-none transition-colors placeholder:text-zinc-500 focus:border-white/32 focus:bg-[#0a0a0a]/90";
+    "w-full rounded border border-white/18 bg-[#0a0a0a]/75 px-4 py-3 font-mono text-base text-white/95 shadow-[inset_0_1px_0_rgba(255,255,255,0.03)] outline-none transition-colors placeholder:text-zinc-500 focus:border-white/32 focus:bg-[#0a0a0a]/90";
 
   return (
     <section
