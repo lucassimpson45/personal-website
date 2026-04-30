@@ -30,17 +30,63 @@ const nextConfig = {
     return config;
   },
   /**
-   * Avoid intermediate caches serving stale HTML (e.g. Vercel x-vercel-cache: STALE).
-   * Browsers and CDNs should revalidate; use no-store for strongest freshness.
+   * Route-scoped Cache-Control: hashed build assets are immutable; public files get
+   * a 24h edge/browser cache; document requests revalidate; API never caches.
+   * Order matters — first matching source wins.
    */
   async headers() {
     return [
+      {
+        source: "/_next/static/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=31536000, immutable",
+          },
+        ],
+      },
+      {
+        source: "/photography/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=86400",
+          },
+        ],
+      },
+      {
+        source: "/logos/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=86400",
+          },
+        ],
+      },
+      {
+        source: "/graphic-design/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "public, max-age=86400",
+          },
+        ],
+      },
+      {
+        source: "/api/:path*",
+        headers: [
+          {
+            key: "Cache-Control",
+            value: "no-store",
+          },
+        ],
+      },
       {
         source: "/:path*",
         headers: [
           {
             key: "Cache-Control",
-            value: "no-store",
+            value: "no-cache, must-revalidate",
           },
         ],
       },
