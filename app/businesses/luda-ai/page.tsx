@@ -51,7 +51,6 @@ export default function LudaAiPage() {
                 src="/logos/luda.png"
                 alt="Luda AI"
                 fill
-                data-cursor-glow="logo"
                 className="bus-logo object-contain object-right"
                 sizes="160px"
                 priority

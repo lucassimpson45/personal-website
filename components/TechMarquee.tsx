@@ -96,7 +96,6 @@ function BrandSvg({ icon }: { icon: BrandIconData }) {
         role="img"
         viewBox="0 0 24 24"
         xmlns="http://www.w3.org/2000/svg"
-        data-cursor-glow="logo"
         className="h-9 w-9"
         aria-hidden
       >
@@ -109,10 +108,7 @@ function BrandSvg({ icon }: { icon: BrandIconData }) {
 
 function MonogramChip({ abbr }: { abbr: string }) {
   return (
-    <div
-      data-cursor-glow="logo"
-      className="tech-marquee-monogram flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-white/[0.1] bg-transparent font-mono text-[11px] font-semibold tracking-tight text-white/90"
-    >
+    <div className="tech-marquee-monogram flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-white/[0.1] bg-transparent font-mono text-[11px] font-semibold tracking-tight text-white/90">
       {abbr}
     </div>
   );
@@ -149,7 +145,6 @@ function LocalLogo({
         alt=""
         width={48}
         height={48}
-        data-cursor-glow="logo"
         className={rasterClass}
         onError={onError}
         title={label}

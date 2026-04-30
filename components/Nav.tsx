@@ -82,7 +82,6 @@ export function Nav() {
                   <a
                     href={href}
                     className={linkClass}
-                    data-cursor-glow
                     onClick={(e) => {
                       e.preventDefault();
                       scrollToId(href);
@@ -103,7 +102,6 @@ export function Nav() {
               className="flex min-h-11 min-w-11 shrink-0 touch-manipulation flex-col items-center justify-center gap-1.5 rounded border border-border bg-surface/80"
               onClick={() => setMobileOpen((o) => !o)}
               data-cursor-hover
-              data-cursor-glow
             >
               <span
                 className={`block h-px w-5 bg-text-primary transition-transform ${
@@ -153,7 +151,6 @@ export function Nav() {
                   key={href}
                   href={href}
                   className="pointer-events-auto w-full border-b border-border/40 py-4 text-center font-mono text-xs uppercase tracking-[0.32em] text-text-primary active:bg-surface-2/50"
-                  data-cursor-glow
                   onClick={(e) => {
                     e.preventDefault();
                     e.stopPropagation();

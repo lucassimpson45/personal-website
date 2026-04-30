@@ -31,7 +31,6 @@ export default function EnvowlPage() {
                 src="/logos/envowl.png"
                 alt="ENVOWL"
                 fill
-                data-cursor-glow="logo"
                 className="bus-logo object-contain object-right"
                 sizes="176px"
                 priority

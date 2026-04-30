@@ -146,7 +146,6 @@ export function PortfolioSection({ latestYoutube, hasYoutubeConfig }: PortfolioS
                               src={b.logoSrc}
                               alt=""
                               fill
-                              data-cursor-glow="logo"
                               className="bus-logo object-contain object-right"
                               sizes="(max-width: 768px) 112px, 144px"
                             />
@@ -212,7 +211,6 @@ export function PortfolioSection({ latestYoutube, hasYoutubeConfig }: PortfolioS
                             src={p.logoSrc}
                             alt=""
                             fill
-                            data-cursor-glow="logo"
                             className="bus-logo object-contain object-right"
                             sizes="(max-width: 768px) 112px, 144px"
                           />
