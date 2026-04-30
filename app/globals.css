@@ -27,10 +27,8 @@ body {
   min-height: 100%;
 }
 
-@media (min-width: 769px) {
-  body.cursor-custom {
-    cursor: none;
-  }
+body.cursor-custom {
+  cursor: none !important;
 }
 
 /* Remove default button chrome (grey box) on the centered nav site title */
@@ -56,16 +54,6 @@ body {
 
   .font-display {
     font-family: var(--font-syne), ui-sans-serif, system-ui, sans-serif;
-  }
-
-  /* Hero title only — text glow from cursor proximity (CustomCursor sets --cursor-prox) */
-  [data-cursor-glow="title"] {
-    --cursor-prox: 0;
-    transition: filter 0.16s ease-out, text-shadow 0.16s ease-out;
-    filter: brightness(calc(1 + 0.2 * var(--cursor-prox)));
-    text-shadow:
-      0 0 calc(36px * var(--cursor-prox)) rgba(255, 240, 215, 0.55),
-      0 0 calc(12px * var(--cursor-prox)) rgba(255, 255, 255, 0.18);
   }
 
   .hero-sun-core {

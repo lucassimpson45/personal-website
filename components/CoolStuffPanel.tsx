@@ -95,7 +95,7 @@ export function CoolStuffPanel() {
           aria-labelledby="cool-tab-photography"
           className="pt-5"
         >
-          <ul className="grid list-none grid-cols-1 gap-4 md:grid-cols-2 md:gap-5">
+          <ul className="isolate grid list-none grid-cols-1 gap-4 md:grid-cols-2 md:gap-5">
             {PHOTOGRAPHY_ITEMS.map((item, i) => (
               <motion.li
                 key={item.src}

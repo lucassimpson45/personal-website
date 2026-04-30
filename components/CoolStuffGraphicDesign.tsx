@@ -128,7 +128,7 @@ export function CoolStuffGraphicContent() {
             id="sub-panel-logos"
             role="region"
             aria-labelledby="sub-tab-logos"
-            className="mt-1 grid list-none grid-cols-2 gap-1.5 sm:grid-cols-2 sm:gap-2 md:grid-cols-3 md:gap-2 lg:grid-cols-4 lg:gap-2.5"
+            className="isolate mt-1 grid list-none grid-cols-2 gap-1.5 sm:grid-cols-2 sm:gap-2 md:grid-cols-3 md:gap-2 lg:grid-cols-4 lg:gap-2.5"
           >
             {LOGO_DESIGN_ITEMS.map((item) => (
               <li key={item.src} className="min-w-0 max-w-full">
