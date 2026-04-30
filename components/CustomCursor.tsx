@@ -4,6 +4,35 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 const LERP = 0.12;
 const CURSOR_DIAMETER_PX = 60;
+const TITLE_GLOW_PROXIMITY_PX = 150;
+
+function distToRect(px: number, py: number, r: DOMRect) {
+  const cx = Math.max(r.left, Math.min(px, r.right));
+  const cy = Math.max(r.top, Math.min(py, r.bottom));
+  return Math.hypot(px - cx, py - cy);
+}
+
+function updateTitleGlowProximity(px: number, py: number) {
+  document.querySelectorAll('[data-cursor-glow="title"]').forEach((node) => {
+    if (!(node instanceof HTMLElement)) return;
+    const rect = node.getBoundingClientRect();
+    if (rect.width === 0 && rect.height === 0) return;
+    const d = distToRect(px, py, rect);
+    if (d <= TITLE_GLOW_PROXIMITY_PX) {
+      node.classList.add("glow-active");
+    } else {
+      node.classList.remove("glow-active");
+    }
+  });
+}
+
+function clearTitleGlowActive() {
+  document.querySelectorAll('[data-cursor-glow="title"]').forEach((node) => {
+    if (node instanceof HTMLElement) {
+      node.classList.remove("glow-active");
+    }
+  });
+}
 
 export function CustomCursor() {
   const [enabled, setEnabled] = useState(false);
@@ -35,6 +64,7 @@ export function CustomCursor() {
       if (el) {
         el.style.transform = `translate3d(${pos.current.x}px, ${pos.current.y}px, 0) translate(-50%, -50%)`;
       }
+      updateTitleGlowProximity(pos.current.x, pos.current.y);
       rafId.current = requestAnimationFrame(tick);
     };
 
@@ -44,12 +74,19 @@ export function CustomCursor() {
     return () => {
       window.removeEventListener("mousemove", onMove);
       cancelAnimationFrame(rafId.current);
+      clearTitleGlowActive();
     };
   }, [enabled, onMove]);
 
   useEffect(() => {
     document.body.classList.toggle("cursor-custom", enabled);
     return () => document.body.classList.remove("cursor-custom");
+  }, [enabled]);
+
+  useEffect(() => {
+    if (!enabled) {
+      clearTitleGlowActive();
+    }
   }, [enabled]);
 
   if (!enabled) return null;

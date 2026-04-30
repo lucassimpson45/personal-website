@@ -91,26 +91,24 @@ const MARQUEE_SVG_FILL = "#f2f2f2";
 
 function BrandSvg({ icon }: { icon: BrandIconData }) {
   return (
-    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-white/[0.1] bg-transparent p-2">
-      <svg
-        role="img"
-        viewBox="0 0 24 24"
-        xmlns="http://www.w3.org/2000/svg"
-        className="h-9 w-9"
-        aria-hidden
-      >
-        <title>{icon.title}</title>
-        <path fill={MARQUEE_SVG_FILL} d={icon.path} />
-      </svg>
-    </div>
+    <svg
+      role="img"
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-9 w-9 shrink-0"
+      aria-hidden
+    >
+      <title>{icon.title}</title>
+      <path fill={MARQUEE_SVG_FILL} d={icon.path} />
+    </svg>
   );
 }
 
 function MonogramChip({ abbr }: { abbr: string }) {
   return (
-    <div className="tech-marquee-monogram flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-white/[0.1] bg-transparent font-mono text-[11px] font-semibold tracking-tight text-white/90">
+    <span className="tech-marquee-monogram font-mono text-[11px] font-semibold tracking-tight text-white/90">
       {abbr}
-    </div>
+    </span>
   );
 }
 
@@ -134,28 +132,26 @@ function LocalLogo({
   }
 
   const rasterClass = rasterLight
-    ? "tech-marquee-raster-light h-full w-full object-contain"
-    : "tech-marquee-raster-dark h-full w-full object-contain";
+    ? "tech-marquee-raster-light object-contain h-9 w-9 shrink-0 sm:h-11 sm:w-11"
+    : "tech-marquee-raster-dark object-contain h-9 w-9 shrink-0 sm:h-11 sm:w-11";
 
   return (
-    <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl border border-white/[0.1] bg-transparent p-1.5">
-      {/* eslint-disable-next-line @next/next/no-img-element -- static PNGs in /public/logos */}
-      <img
-        src={src}
-        alt=""
-        width={48}
-        height={48}
-        className={rasterClass}
-        onError={onError}
-        title={label}
-      />
-    </div>
+    // eslint-disable-next-line @next/next/no-img-element -- static PNGs in /public/logos
+    <img
+      src={src}
+      alt=""
+      width={48}
+      height={48}
+      className={rasterClass}
+      onError={onError}
+      title={label}
+    />
   );
 }
 
 function Cell({ entry }: { entry: TechEntry }) {
   return (
-    <div className="flex shrink-0 flex-col items-center gap-3 px-1 py-1">
+    <div className="flex shrink-0 flex-col items-center gap-3">
       {entry.kind === "brand" ? (
         <BrandSvg icon={TECH_BRAND_ICONS[entry.key]} />
       ) : (

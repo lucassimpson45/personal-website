@@ -455,6 +455,7 @@ export default function HeroColosseum() {
         >
           <div className="pointer-events-none absolute left-0 right-0 top-0 w-full pt-24 pb-12 text-center sm:pt-28 md:pt-32">
             <h1
+              data-cursor-glow="title"
               className="text-center font-display text-[clamp(1.1rem,4.8vw,1.75rem)] leading-tight tracking-[0.18em] text-text-primary drop-shadow-[0_0_40px_rgba(0,0,0,0.85)] sm:text-4xl sm:tracking-[0.24em] md:whitespace-nowrap md:text-6xl md:tracking-[0.3em] lg:text-7xl lg:tracking-[0.34em]"
             >
               LUCAS SIMPSON

@@ -56,6 +56,13 @@ body.cursor-custom {
     font-family: var(--font-syne), ui-sans-serif, system-ui, sans-serif;
   }
 
+  [data-cursor-glow='title'] {
+    transition: text-shadow 0.3s ease;
+  }
+  [data-cursor-glow='title'].glow-active {
+    text-shadow: 0 0 40px rgba(255,255,255,0.6), 0 0 80px rgba(255,255,255,0.3); 
+  }
+
   .hero-sun-core {
     background: radial-gradient(
       ellipse 50% 50% at 50% 30%,
